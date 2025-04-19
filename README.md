@@ -1,6 +1,6 @@
 # NestJS Message Management System
 
-A complete RESTful API for managing messages and conversations, built using NestJS, MongoDB, Kafka, Redis, and Elasticsearch. This project is part of a senior backend engineering technical task and demonstrates practical use of modern backend technologies and architecture patterns.
+A complete RESTful API for managing messages and conversations, built using NestJS, MongoDB, Kafka, Redis, and Elasticsearch. This project is part of a technical task and demonstrates practical use of modern backend technologies and architecture patterns.
 
 ## What I Implemented
 
