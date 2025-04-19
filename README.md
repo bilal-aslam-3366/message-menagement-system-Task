@@ -47,7 +47,7 @@ Make sure the following services are installed and running on localhost:
 ### Clone and Setup
 
 ```bash
-git clone https://github.com/yourusername/nestjs-message-system.git
+git clone https://github.com/bilal-aslam-3366/message-menagement-system-Task.git
 cd nestjs-message-system
 npm install
 npm run start:dev
