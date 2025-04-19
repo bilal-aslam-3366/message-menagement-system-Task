@@ -1,0 +1,317 @@
+{
+	"info": {
+		"_postman_id": "932a8e77-3820-4a54-8319-31c59945f99e",
+		"name": "Message-Menagement-System - REST API's",
+		"description": "This project is a **Message Management System** I architected and built from the ground up as part technical assessment.\n\nIt showcases my ability to design and implement a **modular, real-time backend** using:\n\n- **Domain-Driven Design (DDD)**\n    \n- **Event-Driven Architecture (EDA)**\n    \n- **Multi-Tenant Support**\n    \n\n#### 🔧 What I Used:\n\n- **NestJS** for scalable backend architecture\n    \n- **MongoDB** for storing users, messages, and conversations\n    \n- **Kafka** for emitting domain events\n    \n- **Elasticsearch** for full-text message search\n    \n- **Redis** for caching and performance boost\n    \n\nAll services are seamlessly integrated, well-tested, and follow **SOLID principles**. This root folder represents the foundation of a clean, production-ready system built entirely by me.",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "39167988",
+		"_collection_link": "https://constellation-development.postman.co/workspace/constellation-development-Works~3198d551-7f2b-4296-87fd-7fc445a496d0/collection/39167988-932a8e77-3820-4a54-8319-31c59945f99e?action=share&source=collection_link&creator=39167988"
+	},
+	"item": [
+		{
+			"name": "Authentication:",
+			"item": [
+				{
+					"name": "UserRegistration",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"username\": \"bilalaslam1201\",    //Required Field\n    \"email\": \"bilalaslam@gmail.com\",  //Required Field\n    \"password\": \"Bilal@1201\",    //Required Field\n    \"tenantId\": 1,               //optional Field\n    \"roles\": [\"user\"]            //optional Field\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{url}}/api/auth/signup",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"api",
+								"auth",
+								"signup"
+							]
+						},
+						"description": "### User Registration API\n\nI built the **Signup API** to securely handle user registration. It ensures that all incoming data is **validated**, **hashed**, and stored with **multi-tenant** compatibility. The API follows industry standards for **data security** and **error handling**.\n\n#### Endpoint\n\n`POST {{base_url}}/auth/signup`"
+					},
+					"response": []
+				},
+				{
+					"name": "UserAuthentication",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Get Authentication Token\", function () {",
+									"    var token = pm.response.json().data.token;",
+									"    pm.expect(token).not.to.be.undefined;",
+									"    pm.environment.set(\"token\", token);",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"email\": \"bilal@gmail.com\",  //Required Field\n    \"password\": \"Bilal@1201\"     //Required Field\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{url}}/api/auth/login",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"api",
+								"auth",
+								"login"
+							]
+						},
+						"description": "### User Login API\n\nI built the **Login API** to securely authenticate users based on their **email** and **password**. This API ensures proper validation and error handling while generating a **JWT token** for access to protected routes.\n\n#### Endpoint\n\n`POST {{base_url}}/auth/login`"
+					},
+					"response": []
+				}
+			],
+			"description": "### Authentication – Signup & Signin\n\nI implemented secure **RESTful APIs** for user **signup** and **signin**, enabling authentication using **JWT (JSON Web Tokens)**. These endpoints serve as the entry point for accessing the protected resources across the system.\n\n#### Key Features:\n\n- **Signup API** – Registers a new user with hashed password storage (bcrypt).\n    \n- **Signin API** – Authenticates user credentials and returns a JWT.\n    \n- **JWT Auth Guard** – Protects all private routes, ensuring only authenticated users can access them.\n    \n- **Scalable Structure** – Follows modular and clean design to extend with roles, permissions, or refresh tokens easily."
+		},
+		{
+			"name": "Messages:",
+			"item": [
+				{
+					"name": "CreateNewMessage",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "authorization",
+								"value": "Bearer {{token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"conversationId\": \"1234567890\",\n  \"senderId\": \"user_1\",\n  \"content\": \"Hello, how are you?\",\n  \"metadata\": {\n    \"priority\": \"high\",\n    \"attachments\": [\"file1.jpg\", \"file2.pdf\"]\n  }\n}\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{url}}/api/messages",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"api",
+								"messages"
+							]
+						},
+						"description": "I built the **Create New Message API** to allow users to send messages within a conversation, ensuring data integrity, efficient storage, and real-time updates.\n\n#### Endpoint\n\n`POST {{base_url}}/api/messages`"
+					},
+					"response": []
+				},
+				{
+					"name": "GetMessagesByConversationId",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "authorization",
+								"value": "Bearer {{token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"conversationId\": \"1234567890\",\n  \"senderId\": \"user_1\",\n  \"content\": \"Hello, how are you?\",\n  \"metadata\": {\n    \"priority\": \"high\",\n    \"attachments\": [\"file1.jpg\", \"file2.pdf\"]\n  }\n}\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{url}}/api/conversations/1234567890/messages?pageNo=2&pageSize=3&sort=-timestamp",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"api",
+								"conversations",
+								"1234567890",
+								"messages"
+							],
+							"query": [
+								{
+									"key": "pageNo",
+									"value": "2"
+								},
+								{
+									"key": "pageSize",
+									"value": "3"
+								},
+								{
+									"key": "sort",
+									"value": "-timestamp"
+								}
+							]
+						},
+						"description": "The **Get Messages by Conversation ID API** allows users to retrieve all messages within a specific conversation, with pagination, sorting, and efficient data retrieval using **Redis** caching for performance optimization.\n\n#### Endpoint\n\n`GET {{base_url}}/api/conversations/{conversationId}/messages`"
+					},
+					"response": []
+				},
+				{
+					"name": "GetMessagesByElasticSearch",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "authorization",
+								"value": "Bearer {{token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"conversationId\": \"1234567890\",\n  \"senderId\": \"user_1\",\n  \"content\": \"Hello, how are you?\",\n  \"metadata\": {\n    \"priority\": \"high\",\n    \"attachments\": [\"file1.jpg\", \"file2.pdf\"]\n  }\n}\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{url}}/api/conversations/1234567890/messages/search?q=hello&pageNo=1&pageSize=10",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"api",
+								"conversations",
+								"1234567890",
+								"messages",
+								"search"
+							],
+							"query": [
+								{
+									"key": "q",
+									"value": "hello"
+								},
+								{
+									"key": "pageNo",
+									"value": "1"
+								},
+								{
+									"key": "pageSize",
+									"value": "10"
+								}
+							]
+						},
+						"description": "The **Get Messages by ElasticSearch API** enables users to search for messages within a conversation based on a query string, leveraging **Elasticsearch** for fast and efficient search results.\n\n#### Endpoint\n\n`GET {{base_url}}/api/conversations/{conversationId}/messages/search`"
+					},
+					"response": []
+				}
+			],
+			"description": "### Messaging Module:\n\nI implemented the **Messaging** module, which includes robust features for **conversation creation**, **message storage**, and **real-time communication**.\n\nThis module supports:\n\n- **Create Conversation** – Enables users to start new conversations.\n    \n- **Send New Messages** – Allows users to send messages within conversations.\n    \n- **Retrieve Conversations** – Fetches conversations and their messages.\n    \n- **Optimized Search** – Full-text search powered by **Elasticsearch** for fast and relevant message retrieval.\n    \n- **Caching** – Uses **Redis** to cache messages by conversation for faster access.\n    \n\nThe **Messaging API** is designed to be highly scalable, ensuring smooth communication even as data grows, and is fully integrated with **Kafka** for real-time event handling."
+		},
+		{
+			"name": "Conversations:",
+			"item": [
+				{
+					"name": "CreateConversation",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "authorization",
+								"value": "Bearer {{token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"title\": \"Dev Team\",\n    \"participants\": [\"Bilal\", \"Mohsin\", \"Arslan\"]\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{url}}/api/conversations",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"api",
+								"conversations"
+							]
+						},
+						"description": "The **Create Conversation API** enables users to initiate a new conversation by specifying participants. The API also ensures data integrity, validates participants, and handles multi-tenant requirements, providing a robust foundation for conversation management in the system.\n\n#### Endpoint\n\n`POST {{base_url}}/api/conversations`"
+					},
+					"response": []
+				},
+				{
+					"name": "GetConversationById",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "authorization",
+								"value": "Bearer {{token}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"title\": \"Dev Team\",\n    \"participants\": [\"Bilal\", \"Mohsin\", \"Arslan\"]\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{url}}/api/conversations/6802ff397330610c80881f59",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"api",
+								"conversations",
+								"6802ff397330610c80881f59"
+							]
+						},
+						"description": "The **Get Conversation by ID** API retrieves the details of a specific conversation using its unique `conversationId`. This API provides essential metadata about the conversation, including the participants, the topic, and the creation timestamp.\n\n#### Endpoint\n\n`GET {{base_url}}/api/conversations/{conversationId}`"
+					},
+					"response": []
+				}
+			],
+			"description": "The **Conversation** module serves as the core for managing conversations within the system, including creating new conversations, retrieving conversations, and accessing messages related to specific conversations. This folder encapsulates all the APIs and logic associated with conversation management."
+		}
+	]
+}
