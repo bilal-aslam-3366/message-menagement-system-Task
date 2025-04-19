@@ -72,44 +72,5 @@ export class ElasticContext implements OnModuleInit {
         },
       },
     } as any)
-    
-    // await this.client.indices.create({
-    //   index: indexName,
-    //   body: {
-    //     settings: {
-    //       number_of_shards: 3,
-    //       number_of_replicas: 1,
-    //       analysis: {
-    //         analyzer: {
-    //           message_analyzer: {
-    //             type: "custom",
-    //             tokenizer: "standard",
-    //             filter: ["lowercase", "stop", "snowball"],
-    //           },
-    //         },
-    //       },
-    //     },
-    //     mappings: {
-    //       properties: {
-    //         id: { type: "keyword" },
-    //         conversationId: { type: "keyword" },
-    //         senderId: { type: "keyword" },
-    //         content: {
-    //           type: "text",
-    //           analyzer: "message_analyzer",
-    //           fields: {
-    //             keyword: {
-    //               type: "keyword",
-    //               ignore_above: 256,
-    //             },
-    //           },
-    //         },
-    //         timestamp: { type: "date" },
-    //         metadata: { type: "object", enabled: true },
-    //         tenantId: { type: "keyword" },
-    //       },
-    //     },
-    //   },
-    // })
   }
 }
