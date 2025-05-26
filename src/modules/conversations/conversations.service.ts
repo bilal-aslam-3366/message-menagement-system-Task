@@ -1,4 +1,4 @@
-import { Injectable, Logger, NotFoundException, BadRequestException } from "@nestjs/common"
+import { Injectable, Logger, NotFoundException, BadRequestException, ConflictException } from "@nestjs/common"
 import type { CreateConversationDto } from "./dto/create-conversation.dto"
 import type { GetConversationDto } from "./dto/get-conversation.dto"
 import { Conversation } from "./schemas/conversation.schema";
@@ -23,6 +23,11 @@ export class ConversationsService {
 
   async createConversation(createConversationDto: CreateConversationDto, user: any) {
     try {
+      const existing = await this.conversationModel.findOne({ title: createConversationDto.title });
+      if (existing) {
+        throw new ConflictException('A conversation with this title already exists');
+      }
+
       const conversation = await this.conversationModel.create({
         title: createConversationDto.title,
         participants: createConversationDto.participants || [user.id],

@@ -1,7 +1,9 @@
 import { Injectable, Logger, NotFoundException } from "@nestjs/common";
 import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
+import { Model, Types } from 'mongoose';
 import { Message } from "./schemas/message.schema";
+import { Conversation } from "../conversations/schemas/conversation.schema";
+import { User } from "../auth/schemas/user.schema";
 import { CreateMessageDto } from "./dto/create-message.dto";
 import { SearchMessageDto } from "./dto/search-message.dto";
 import { KafkaProducerService } from '../../common/kafka/producer.service';
@@ -16,6 +18,13 @@ export class MessagesService {
   constructor(
     @InjectModel(Message.name)
     private readonly messageModel: Model<Message>,
+
+    @InjectModel(Conversation.name)
+    private readonly conversationModel: Model<Conversation>,
+
+    @InjectModel(User.name)
+    private readonly userModel: Model<User>,
+
     private readonly kafkaProducerService: KafkaProducerService,
     private configService: ConfigService,
     private elasticContext: ElasticContext,
@@ -23,6 +32,25 @@ export class MessagesService {
 
   async createMessage(createMessageDto: CreateMessageDto, user: any) {
     try {
+
+      if (!Types.ObjectId.isValid(createMessageDto.conversationId)) {
+        throw new NotFoundException('Invalid conversation ID');
+      }
+  
+      const conversation = await this.conversationModel.findById(createMessageDto.conversationId);
+      if (!conversation) {
+        throw new NotFoundException('Conversation not found');
+      }
+  
+      if (!Types.ObjectId.isValid(user._id)) {
+        throw new NotFoundException('Invalid user ID');
+      }
+  
+      const sender = await this.userModel.findById(user._id);
+      if (!sender) {
+        throw new NotFoundException('Sender user not found');
+      }  
+
       const message = await this.messageModel.create({
         conversationId: createMessageDto.conversationId,
         senderId: user._id,
@@ -37,6 +65,26 @@ export class MessagesService {
       await this.kafkaProducerService.produceMessage(kafkaRequestTopic, message);
 
       this.logger.log(`Message created and sent to Kafka topic.`);
+
+      // Index message in Elasticsearch
+      try {
+        await this.elasticContext.client.index({
+          index: this.configService.get<string>('elasticsearch.indexMessages'),
+          id: message._id.toString(), // this is where _id should be
+          document: {
+            // _id: message._id, ❌ REMOVE THIS LINE
+            conversationId: message.conversationId,
+            senderId: message.senderId,
+            content: message.content,
+            timestamp: message.timestamp,
+            metadata: message.metadata,
+          },
+        });        
+
+        this.logger.log(`Message indexed in Elasticsearch with ID ${message._id}`);
+      } catch (elasticError) {
+        this.logger.error(`Failed to index message in Elasticsearch: ${elasticError.message}`, elasticError.stack);
+      }
 
       return message;
     } catch (error) {
@@ -185,7 +233,7 @@ export class MessagesService {
       if (hits.length === 0) {
         throw new NotFoundException(`No messages found for search query: ${query}`);
       }
-  
+
       return {
         data: hits,
         meta: {

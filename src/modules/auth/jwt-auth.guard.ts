@@ -15,7 +15,7 @@ export class JwtAuthGuard extends AuthGuard('jwt') {
     if (err) {
       throw err
     }
-console.log("useruseruser",user)
+    
     if (!user) {
       let message = 'Authentication failed. Please login again.'
 

@@ -8,13 +8,26 @@ export class KafkaAdminService {
   private kafka;
   private admin;
 
-  constructor(private readonly configService: ConfigService) {
-    this.kafka = new Kafka({
-      clientId: this.configService.get<string>('kafka.clientId') || 'message-menagement',
-      brokers: [this.configService.get<string>('kafka.brokers') || 'localhost:9092'],
-    });
-    this.admin = this.kafka.admin();
-  }
+ constructor(private readonly configService: ConfigService) {
+  const brokersRaw = this.configService.get('kafka.brokers') ?? 'localhost:9092';
+  const brokers = typeof brokersRaw === 'string' ? brokersRaw.split(',') : ['localhost:9092'];
+
+  this.logger.log(`Connecting to Kafka brokers: ${brokers.join(', ')}`);
+
+  this.kafka = new Kafka({
+    clientId: this.configService.get<string>('kafka.clientId') || 'message-menagement',
+    brokers,
+  });
+
+  this.admin = this.kafka.admin();
+}
+  // constructor(private readonly configService: ConfigService) {
+  //   this.kafka = new Kafka({
+  //     clientId: this.configService.get<string>('kafka.clientId') || 'message-menagement',
+  //     brokers: [this.configService.get<string>('kafka.brokers') || 'localhost:9092'],
+  //   });
+  //   this.admin = this.kafka.admin();
+  // }
 
   async createTopics(retries = 5, delay = 5000) {
     const requestTopic = this.configService.get<string>('kafka.kafkaRequestTopic') || 'kafka_topic_for_request_message';

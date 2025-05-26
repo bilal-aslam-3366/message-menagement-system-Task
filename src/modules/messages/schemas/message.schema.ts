@@ -1,5 +1,7 @@
 import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose";
-import type { Document } from "mongoose";
+import { Document, Types } from "mongoose";
+import { Conversation } from "../../conversations/schemas/conversation.schema"; 
+import { User } from "../../auth/schemas/user.schema"; 
 
 export type MessageDocument = Message & Document;
 
@@ -8,10 +10,10 @@ export type MessageDocument = Message & Document;
   collection: "messages",
 })
 export class Message {
-  @Prop({ required: true, index: true })
+  @Prop({ type: Types.ObjectId, ref: 'Conversation', required: true, index: true })
   conversationId: string;
 
-  @Prop({ required: true, index: true })
+  @Prop({ type: Types.ObjectId, ref: 'User', required: true, index: true })
   senderId: string;
 
   @Prop({ required: true })
