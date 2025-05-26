@@ -51,3 +51,11 @@ git clone https://github.com/bilal-aslam-3366/message-menagement-system-Task.git
 cd nestjs-message-system
 npm install
 npm run start:dev
+
+Testing On Local Storage
+zookeeper-server-start.sh $KAFKA_HOME/config/zookeeper.properties
+kafka-server-start.sh $KAFKA_HOME/config/server.properties
+kafka/bin> ./kafka-console-consumer.sh --bootstrap-server localhost:9092 --topic kafka_topic_for_request_message --group message-group
+http://localhost:9200/messages/_doc/6834d9a6d029e0b34a98592d
+redis-cli> GET messages:6834d1e3601430805ca61c6e
+
