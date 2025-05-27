@@ -70,9 +70,8 @@ export class MessagesService {
       try {
         await this.elasticContext.client.index({
           index: this.configService.get<string>('elasticsearch.indexMessages'),
-          id: message._id.toString(), // this is where _id should be
+          id: message._id.toString(),
           document: {
-            // _id: message._id, ❌ REMOVE THIS LINE
             conversationId: message.conversationId,
             senderId: message.senderId,
             content: message.content,
